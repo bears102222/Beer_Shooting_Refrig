@@ -5,7 +5,7 @@
 #include <string.h>
 #include "SerialPort.h"
 #include <string>
-
+//
 using namespace std;
 using namespace cv;
 char *port_name = "\\\\.\\COM6";

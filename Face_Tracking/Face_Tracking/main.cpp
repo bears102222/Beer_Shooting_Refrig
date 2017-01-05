@@ -37,7 +37,7 @@ bool search_forFace() {
 		cap.read(frame);
 		waitKey(10);
 		cvtColor(frame, gray_frame, COLOR_BGR2GRAY);
-		face.detectMultiScale(gray_frame, found_faces, 1.1, 4, CV_HAAR_DO_CANNY_PRUNING | CASCADE_SCALE_IMAGE, Size(30, 30));
+		face.detectMultiScale(gray_frame, found_faces, 1.1, 7, CV_HAAR_DO_CANNY_PRUNING | CASCADE_SCALE_IMAGE, Size(30, 30));
 		if (found_faces.size() > 0) {
 			//printf("width: %d length: %d \n", found_faces[0].width, found_faces[0].height);
 			success = success + 1;

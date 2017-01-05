@@ -17,7 +17,6 @@ int frame_width, frame_height;
 VideoCapture cap(1);
 CascadeClassifier face;
 bool condition, movement = false;
-int last_move_left, last_move_right = 0;
 
 //Sends message to Arduino over Serial
 void send_message(string message) {

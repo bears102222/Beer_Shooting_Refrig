@@ -89,7 +89,7 @@ int main() {
 					movement = true;
 					
 				}
-				//If this condition is met, it should shoot the can and tells Arduino to stop moving
+				//If this condition is met, it should shoot the can and tells Arduino to stop moving.
 				if (condition == true){
 					rectangle(frame, Point(found_faces[i].x, found_faces[i].y), Point(found_faces[i].x + found_faces[i].width, found_faces[i].y + found_faces[i].height), Scalar(0, 255, 0), 2, LINE_8, 0);
 					rectangle(frame, Point(frame_width *0.30, 0), Point(frame_width *0.70, frame_height), Scalar(0, 255, 0), 2, LINE_8, 0);

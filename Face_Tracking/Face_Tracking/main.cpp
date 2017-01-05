@@ -16,8 +16,10 @@ std::vector<Rect> found_faces;
 int frame_width, frame_height;
 VideoCapture cap(1);
 CascadeClassifier face;
-bool condition, movement = false;
+bool condition, movement, move_left, move_right = false;
 int last_move_left, last_move_right = 0;
+int time_checker, time = 0;
+bool first = true;
 
 //Sends message to Arduino over Serial
 void send_message(string message) {
@@ -68,12 +70,10 @@ int main() {
 
 		//Draw Boxes around faces red unless its in the target zone
 		if(found_faces.size() > 0)
-		condition = (found_faces[0].x > frame_width *0.30) && (found_faces[0].x < frame_width *0.70);
-		
-		if (found_faces.size() > 0  && (condition ||search_forFace() == true)) {
-
+		condition = (found_faces[0].x > frame_width *0.30) && (found_faces[0].x < frame_width *0.70);	
+		//Condition removed to increase accuracy
+		if (found_faces.size() > 0  && (search_forFace() == true)) {
 			for (size_t i = 0; i < found_faces.size(); i++) {
-
 				//If this condition is met the camera should slightly shift
 				if (condition == false) {
 					rectangle(frame, Point(found_faces[i].x, found_faces[i].y), Point(found_faces[i].x + found_faces[i].width, found_faces[i].y + found_faces[i].height), Scalar(0, 0, 255), 2, LINE_8, 0);
@@ -81,13 +81,11 @@ int main() {
 						movement = true;
 						send_message("Shift_Left");
 					}
-
 					if ((found_faces[i].x > frame_width*0.7) && movement == false) {
 						movement = true;
 						send_message("Shift_Right");
 					}
-					movement = true;
-					
+					movement = true;					
 				}
 				//If this condition is met, it should shoot the can and tells Arduino to stop moving.
 				if (condition == true){
@@ -95,13 +93,48 @@ int main() {
 					rectangle(frame, Point(frame_width *0.30, 0), Point(frame_width *0.70, frame_height), Scalar(0, 255, 0), 2, LINE_8, 0);
 					if (movement == true) {
 						movement = false;
+						move_left = false;
+						move_right = false;
 						waitKey(1000);
 						send_message("Stop");
 					}
 					}
 			}
+
 		}
-		
+		//Implement Searching if faces are not found
+		if (found_faces.size() == 0) {
+			putText(frame, "Searching", Point((frame_width/2 - frame_width *0.30), frame_height *0.9), FONT_HERSHEY_COMPLEX, 2, cvScalar(255,0,0), 8, true);
+			time_checker = getTickCount();
+			if (first) {
+				time_checker *= 13;
+				first = false;
+			}
+
+			if (move_left == false && (time_checker-last_move_right) / getTickFrequency() > 12) {
+				send_message("Shift_Left");
+				movement = true;
+				move_left = true;
+				last_move_left = getTickCount();
+			}
+			if (move_right == false && (time_checker - last_move_left) / getTickFrequency() > 6) {
+				send_message("Shift_Right");
+				movement = true;
+				move_right = true;
+				last_move_right = getTickCount();
+			}
+			if (move_left == true && move_right == true) {
+				move_left = false;
+				move_right = false;
+			}
+
+		}
+
+
+
+
+
+		// Show Results
 		imshow("window", frame);
 		waitKey(5);
 		

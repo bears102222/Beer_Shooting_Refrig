@@ -66,34 +66,36 @@ int main() {
 		face.detectMultiScale(gray_frame, found_faces, 1.1, 4, CV_HAAR_DO_CANNY_PRUNING | CASCADE_SCALE_IMAGE, Size(30, 30));
 
 
-		//Draw Boxes around faces Pink if in red
+		//Draw Boxes around faces red unless its in the target zone
 		if(found_faces.size() > 0)
 		condition = (found_faces[0].x > frame_width *0.30) && (found_faces[0].x < frame_width *0.70);
 		
 		if (found_faces.size() > 0  && (condition ||search_forFace() == true)) {
 
 			for (size_t i = 0; i < found_faces.size(); i++) {
+
 				//If this condition is met the camera should slightly shift
 				if (condition == false) {
 					rectangle(frame, Point(found_faces[i].x, found_faces[i].y), Point(found_faces[i].x + found_faces[i].width, found_faces[i].y + found_faces[i].height), Scalar(0, 0, 255), 2, LINE_8, 0);
-					if (found_faces[i].x < frame_width*0.3) {
-						send_message("Shift_Left");
+					if ((found_faces[i].x < frame_width*0.3) && movement == false) {
 						movement = true;
-						waitKey(1000);
+						send_message("Shift_Left");
 					}
-					if (found_faces[i].x > frame_width*0.7) {
+
+					if ((found_faces[i].x > frame_width*0.7) && movement == false) {
 						movement = true;
 						send_message("Shift_Right");
-						waitKey(1000);
 					}
+					movement = true;
 					
 				}
-				//If this condition is met, it should shoot the can
+				//If this condition is met, it should shoot the can and tells Arduino to stop moving
 				if (condition == true){
 					rectangle(frame, Point(found_faces[i].x, found_faces[i].y), Point(found_faces[i].x + found_faces[i].width, found_faces[i].y + found_faces[i].height), Scalar(0, 255, 0), 2, LINE_8, 0);
 					rectangle(frame, Point(frame_width *0.30, 0), Point(frame_width *0.70, frame_height), Scalar(0, 255, 0), 2, LINE_8, 0);
 					if (movement == true) {
 						movement = false;
+						waitKey(1000);
 						send_message("Stop");
 					}
 					}
